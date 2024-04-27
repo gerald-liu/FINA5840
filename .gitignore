@@ -1,3 +1,6 @@
+# project specifc
+crsp-monthly.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
