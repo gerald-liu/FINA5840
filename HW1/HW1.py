@@ -1,3 +1,25 @@
+#! /usr/bin/env python
+# -*-coding: utf-8 -*-
+
+"""FINA 5840 Homework 1
+1. Use Pandas to read the daily prices of HSI constituents (given file), with the date being the index. 
+    Interpolate missing entries with spline method of order=3.
+2. Create a weekly (every Friday), and monthly (every monthend) dataframes
+3. Use Pandas to calculate the corresponding daily, weekly and monthly returns of the above 3 dataframes
+4. For the weekly dataframe, calculate the covariance matrix. OUTPUT the file as covHSI.csv
+5. For the daily returns, use matplotlib to plot histogram for Tencent (700 HK), 
+    you will need to take away all the 'NaN'. Use bins=100. Normalize the histogram (using density='True'), 
+    make the title '700 HK', font size=10. Output the histogram and paste it in word, name it Graph.doc
+6. Using the daily return dataframe: For each stock, for each month (of each year), 
+    calculate the standard deviation of daily returns. Output the result into a dataframe as HSI_vol.csv. 
+    As a training exercise, please first define an empty dataframe, 
+    then use LOOP to get the standard deviation of the each stock for each month (of each year) 
+    and then concatenate to the dataframe.
+7. Rework Question 6 using the 'resample' function from pandas.
+"""
+
+__author__ = "Gerald W. Liu"
+
 import pandas as pd
 from matplotlib import pyplot as plt
 
@@ -23,6 +45,7 @@ df_weekly_ret_cov.to_csv('covHSI.csv')
 tencent = df_daily_ret['700 HK'].dropna()
 plt.hist(tencent, bins=100, density=True)
 plt.title('700 HK', fontsize=10)
+plt.savefig('700_HK.png', dpi=300)
 plt.show()
 
 # Question 6
