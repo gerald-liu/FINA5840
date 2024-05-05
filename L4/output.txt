@@ -1,0 +1,15 @@
+min mean: 179 HK, 0.0005
+max mean: 20 HK, 0.0031
+min std: 2 HK, 0.0204
+
+risk measure: vol
+min risk when mu = 0.0016 and std = 0.0175
+min risk Sharpe: 0.0889
+
+risk measure: var
+min risk when mu = 0.0018 and std = 0.0391
+min risk Sharpe: 0.0456
+
+risk measure: es
+min risk when mu = 0.0028 and std = 0.0419
+min risk Sharpe: 0.0668

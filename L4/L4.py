@@ -12,7 +12,11 @@ from matplotlib import pyplot as plt
 
 # risk_measure = {'vol', 'var', 'es'}
 class EfficientFrontier:
-    def __init__(self, df_price: pd.DataFrame, risk_measure: str = 'vol'):
+    def __init__(self,
+        df_price: pd.DataFrame,
+        mu_range: np.ndarray,
+        risk_measure: str = 'vol',
+    ):
         self.df_price = df_price
         self.risk_measure = risk_measure
         self.alpha = 0.05
@@ -20,7 +24,7 @@ class EfficientFrontier:
         self.ub = 1
         self.n = self.df_price.shape[1] # number of assets
         # self.mu_range = np.arange(0.0055, 0.013, 0.0002)
-        self.mu_range = np.arange(0.0065, 0.0105, 0.0002)
+        self.mu_range = mu_range
         self.ret = df_price.pct_change().dropna()
         self.E_ret = self.ret.mean() # sample mean of each asset
         self.omega = self.ret.cov() # covariance matrix
@@ -102,32 +106,49 @@ class EfficientFrontier:
 
 if __name__ == "__main__":
     raw_data = pd.read_excel('../HSI.xlsx', sheet_name='data', index_col=0)
-    data = raw_data.resample('M').last().iloc[:, :5]
-    risk_measures = ['vol', 'var', 'es']
+    data = raw_data.resample('W').last().iloc[:, :20]
 
-    fig, axs = plt.subplots(3, 1, figsize=(5, 9), layout='constrained')
+    df_returns = data.pct_change().dropna()
+    df_mean = df_returns.mean()
+    df_std = df_returns.std()
+    df_mean_min = df_mean.min()
+    df_mean_max = df_mean.max()
+    print(f'min mean: {df_mean.idxmin()}, {df_mean_min :.4f}')
+    print(f'max mean: {df_mean.idxmax()}, {df_mean_max :.4f}')
+    print(f'min std: {df_std.idxmin()}, {df_std.min() :.4f}')
+
+    risk_measures = ['vol', 'var', 'es']
+    mu_rng = np.linspace(df_mean_min, df_mean_max, 100)
+
+    fig1, axs1 = plt.subplots(3, 1, figsize=(8, 9), layout='constrained')
+    fig2, axs2 = plt.subplots(3, 1, figsize=(8, 9), layout='constrained')
 
     for i in range(len(risk_measures)):
         rm = risk_measures[i]
-        print(f'risk measure: {rm}')
+        print(f'\nrisk measure: {rm}')
 
-        ef = EfficientFrontier(df_price=data, risk_measure=rm)
+        ef = EfficientFrontier(df_price=data, mu_range=mu_rng, risk_measure=rm)
         frontier = ef.frontier()
         std_range = np.sqrt(frontier['vol_range'])
         mu_range = ef.get_mu_range()
 
         min_risk_idx = np.argmin(std_range)
-        optimal_mu = mu_range[min_risk_idx]
-        optimal_std = std_range[min_risk_idx]
-        optimal_w = frontier['weights'].iloc[min_risk_idx, :]
+        min_risk_mu = mu_range[min_risk_idx]
+        min_risk_std = std_range[min_risk_idx]
+        min_risk_w = frontier['weights'].iloc[min_risk_idx, :]
         
-        print(f'optimal weights: {optimal_w}')
-        print(f'where mu = {optimal_mu} and std = {optimal_std}')
+        print(f'min risk when mu = {min_risk_mu :.4f} and std = {min_risk_std :.4f}')
+        print(f'min risk Sharpe: {min_risk_mu / min_risk_std :.4f}')
 
-        ax = axs[i]
-        ax.plot(std_range, mu_range)
-        ax.set_title(f'Mean-Variance Frontier using {rm}')
-        ax.set_xlabel("std")
-        ax.set_ylabel("mean")
+        ax1 = axs1[i]
+        ax1.plot(std_range, mu_range)
+        ax1.set_title(f'Mean-Variance Frontier using {rm}')
+        ax1.set_xlabel("std")
+        ax1.set_ylabel("mean")
 
-    fig.savefig('efficient_frontier.png')
+        ax2 = axs2[i]
+        ax2.bar([ticker[:-3] for ticker in data.columns], min_risk_w)
+        ax2.set_title(f'Min-risk weights using {rm}')
+
+    fig1.savefig('efficient_frontier.png')
+    fig2.savefig('min_risk_weights.png')
