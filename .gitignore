@@ -1,6 +1,9 @@
 # project specifc
 crsp-monthly.txt
 
+# homework submission
+*.zip
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

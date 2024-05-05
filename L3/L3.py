@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.stats import norm, gaussian_kde, t, laplace
 from matplotlib import pyplot as plt
 
-df = pd.read_excel('HSI.xlsx', sheet_name='data', index_col=0)
+df = pd.read_excel('../HSI.xlsx', sheet_name='data', index_col=0)
 ret = df['700 HK'].pct_change().dropna(how='all')
 ret.index = pd.to_datetime(ret.index)
 mu = ret.mean()
