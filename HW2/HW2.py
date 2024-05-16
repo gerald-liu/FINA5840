@@ -86,8 +86,9 @@ f_names = df_factor.columns[list(f_idx)]
 With the list of factors from Q4, normalize (standardize) their returns.
 Standardize the return for the equity indexes as well.
 '''
-f_req_norm = (f_req - f_req.mean(axis=0)) / f_req.std(axis=0)
-eq_norm = (equity - equity.mean(axis=0)) / equity.std(axis=0)
+# transposed back to (n_timestamp, n_name)
+f_req_norm = (f_req.T - f_req.mean(axis=1)) / f_req.std(axis=1) # (133, 10)
+eq_norm = (equity.T - equity.mean(axis=1)) / equity.std(axis=1) # (133, 20)
 
 '''Question 6
 Run a for loop for each equity index over the standardized factors from Q4: 
@@ -99,9 +100,9 @@ beta = []
 tvalue = []
 rsq = []
 
-for i in range(eq_norm.shape[0]):
-    X = sm.add_constant(f_req_norm.T)
-    y = eq_norm[i].T
+for i in range(eq_norm.shape[1]):
+    X = sm.add_constant(f_req_norm)
+    y = eq_norm[:, i]
     model = sm.OLS(y, X).fit()
     beta.append(model.params)
     tvalue.append(model.tvalues)
