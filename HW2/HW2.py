@@ -9,7 +9,6 @@ __author__ = "Gerald W. Liu"
 import numpy as np
 import pandas as pd
 from scipy.stats import pearsonr
-from sklearn.preprocessing import StandardScaler
 import statsmodels.api as sm
 
 '''Question 1
@@ -87,8 +86,8 @@ f_names = df_factor.columns[list(f_idx)]
 With the list of factors from Q4, normalize (standardize) their returns.
 Standardize the return for the equity indexes as well.
 '''
-f_req_norm = StandardScaler().fit_transform(f_req)
-eq_norm = StandardScaler().fit_transform(equity)
+f_req_norm = (f_req - f_req.mean(axis=0)) / f_req.std(axis=0)
+eq_norm = (equity - equity.mean(axis=0)) / equity.std(axis=0)
 
 '''Question 6
 Run a for loop for each equity index over the standardized factors from Q4: 
