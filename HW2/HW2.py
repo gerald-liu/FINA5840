@@ -19,8 +19,8 @@ df_equity = pd.read_excel('HW2.xlsx',sheet_name='equity', index_col=0)
 df_factor = pd.read_excel('HW2.xlsx',sheet_name='factor', index_col=0)
 
 # returns
-equity = df_equity.pct_change().dropna().T.values # (n_eq, N) = (20, 133)
-factor = df_factor.pct_change().dropna().T.values # (n_f, N) = (24, 133)
+equity = df_equity.pct_change().dropna().values # (N, n_eq) = (133, 20)
+factor = df_factor.pct_change().dropna().values # (N, n_f) = (133, 24)
 
 '''Question 2
 Set the following parameters: The required explanatory power 'reqExp' as 0.8;
@@ -35,7 +35,7 @@ REQ_FCORR = 0.7 # corr(factor, factor) to minimize, acceptable max = 0.7
 Perform a PCA analysis on the equity returns using numpy,
 find the minimum number of principal components to cover the required explanatory power (0.8).
 '''
-omega = np.cov(equity) # (20, 20)
+omega = np.cov(equity.T) # np.cov([x1, x2, ..., xn].T) = (20, 20)
 lambdas, weights = np.linalg.eig(omega) # (20,), (20, 20)
 
 pc_idx = np.argsort(lambdas)[::-1] # sort descending by explanatory power
@@ -43,11 +43,10 @@ lambdas = lambdas[pc_idx]
 weights = weights[:, pc_idx]
 
 var_exp = lambdas / np.sum(lambdas) # % of variance explained
-last_pc_idx = np.argmax(np.cumsum(var_exp) >= 0.8) # (cumsum>=0.8) = [F, F, T]
-print(f'Min number of PC = {last_pc_idx + 1}') # n_pc = 3
+n_pc = np.argmax(np.cumsum(var_exp) >= 0.8) + 1 # (cumsum>=0.8) = [F, F, T]
 
-wgt_req = weights[:, :(last_pc_idx + 1)] # (n_eq, n_pc) = (20, 3)
-pc = wgt_req.T @ equity # (3, 20) @ (20, 133) = (3, 133)
+wgt_req = weights[:, :n_pc] # (n_eq, n_pc) = (20, 3)
+pc = equity @ wgt_req # (133, 20) @ (20, 3) = (133, 3)
 
 '''Question 4
 Find the most relevant factors to represent the principalcomponents.
@@ -60,10 +59,10 @@ For each factor, keep those with correlation greater than 'reqCorr' but less tha
 '''
 f_idx = set()
 
-for i in range(pc.shape[0]):
-    corr = np.zeros(factor.shape[0])
-    for j in range(factor.shape[0]): # j: original factor indices
-        corr[j], _ = pearsonr(pc[i], factor[j])
+for i in range(pc.shape[1]):
+    corr = np.zeros(factor.shape[1])
+    for j in range(factor.shape[1]): # j: original factor indices
+        corr[j], _ = pearsonr(pc[:, i], factor[:, j])
         
     corr_idx = np.argsort(abs(corr))[::-1]
 
@@ -72,23 +71,22 @@ for i in range(pc.shape[0]):
         if abs(corr[k]) > REQ_CORR:
             keep = True
             for l in f_idx:
-                corr_f, _ = pearsonr(factor[k], factor[l])
+                corr_f, _ = pearsonr(factor[:, k], factor[:, l])
                 # discard if corr(f, any_f_taken) >= REQ_FCORR
                 if abs(corr_f) >= REQ_FCORR:
                     keep = False
             if keep:
                 f_idx.add(k)
 
-f_req = factor[list(f_idx)]
+f_req = factor[:, list(f_idx)]
 f_names = df_factor.columns[list(f_idx)]
 
 '''Question 5
 With the list of factors from Q4, normalize (standardize) their returns.
 Standardize the return for the equity indexes as well.
 '''
-# transposed back to (n_timestamp, n_name)
-f_req_norm = (f_req.T - f_req.mean(axis=1)) / f_req.std(axis=1) # (133, 10)
-eq_norm = (equity.T - equity.mean(axis=1)) / equity.std(axis=1) # (133, 20)
+f_req_norm = (f_req - f_req.mean(axis=0)) / f_req.std(axis=0) # (133, 10)
+eq_norm = (equity - equity.mean(axis=0)) / equity.std(axis=0) # (133, 20)
 
 '''Question 6
 Run a for loop for each equity index over the standardized factors from Q4: 
@@ -96,22 +94,23 @@ OLS with intercept,
 retrieve the beta, t-value and R-squared and keep them into 3 different lists. 
 Output all of them into beta.csv, tvalue.csv, Rsq.csv.
 '''
-beta = []
-tvalue = []
-rsq = []
+beta = np.zeros((eq_norm.shape[1], f_req_norm.shape[1])) # (20, 10)
+tvalue = np.zeros((eq_norm.shape[1], f_req_norm.shape[1])) # (20, 10)
+rsq = np.zeros(eq_norm.shape[1]) # (20,)
 
 for i in range(eq_norm.shape[1]):
-    X = sm.add_constant(f_req_norm)
-    y = eq_norm[:, i]
+    X = sm.add_constant(f_req_norm) # add a column -> (133, 11)
+    y = eq_norm[:, i] # (133, 1)
     model = sm.OLS(y, X).fit()
-    beta.append(model.params)
-    tvalue.append(model.tvalues)
-    rsq.append(model.rsquared)
+    beta[i, :] = model.params[1:]
+    tvalue[i, :] = model.tvalues[1:]
+    rsq[i] = model.rsquared
 
-df_beta = pd.DataFrame(beta, index=df_equity.columns, columns=f_names.insert(0, 'Intercept'))
-df_tvalue = pd.DataFrame(tvalue, index=df_equity.columns, columns=f_names.insert(0, 'Intercept'))
+# exclude intercept
+df_beta = pd.DataFrame(beta, index=df_equity.columns, columns=f_names)
+df_tvalue = pd.DataFrame(tvalue, index=df_equity.columns, columns=f_names)
 df_rsq = pd.DataFrame(rsq, index=df_equity.columns, columns=['R-squared'])
 
-df_beta.to_csv('beta.csv', header=False, index=False)
-df_tvalue.to_csv('tvalue.csv', header=False, index=False)
-df_rsq.to_csv('Rsq.csv', header=False, index=False)
+df_beta.to_csv('beta.csv')
+df_tvalue.to_csv('tvalue.csv')
+df_rsq.to_csv('Rsq.csv')
