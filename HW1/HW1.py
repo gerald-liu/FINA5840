@@ -24,7 +24,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 # Question 1
-df = pd.read_excel('HSI.xlsx', index_col=0)
+df = pd.read_excel('../HSI.xlsx', index_col=0)
 df = df.interpolate(method='spline', order=3)
 
 # Question 2
