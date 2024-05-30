@@ -39,7 +39,7 @@ def ERC_func(w, cov):
 
 # Max Diversification Ratio objective: maximize DI = (w.T std)/(w.T omega w)
 def MDR_func(w, cov):
-    return (w @ np.diag(cov)) / vol(w, cov)
+    return - (w @ np.sqrt(np.diag(cov))) / vol(w, cov)
 
 # Global Min Variance objective: minimize variance = w.T omega w
 def GMV_func(w, cov):
@@ -51,7 +51,7 @@ def MDC_func(w, corr):
 
 # Max Sharpe Ratio objective: maximize Sharpe = (w.T mu - rf)/(w.T omega w)
 def MSR_func(w, cov, mu, rf):
-    return (w @ mu - rf) / vol(w, cov)
+    return - (w @ mu - rf) / vol(w, cov)
 
 # weights optimizer
 def pfl_optimizer(func, n, args=(), long_only=True):
