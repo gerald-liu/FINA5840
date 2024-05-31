@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # -*-coding: utf-8 -*-
 
-"""FINA 5840 Homework 1
+'''FINA 5840 Homework 1
 1. Use Pandas to read the daily prices of HSI constituents (given file), with the date being the index. 
     Interpolate missing entries with spline method of order=3.
 2. Create a weekly (every Friday), and monthly (every monthend) dataframes
@@ -16,9 +16,9 @@
     then use LOOP to get the standard deviation of the each stock for each month (of each year) 
     and then concatenate to the dataframe.
 7. Rework Question 6 using the 'resample' function from pandas.
-"""
+'''
 
-__author__ = "Gerald W. Liu"
+__author__ = 'Gerald W. Liu'
 
 import pandas as pd
 from matplotlib import pyplot as plt

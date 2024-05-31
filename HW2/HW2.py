@@ -1,10 +1,10 @@
 #! /usr/bin/env python
 # -*-coding: utf-8 -*-
 
-"""FINA 5840 Homework 2
-"""
+'''FINA 5840 Homework 2
+'''
 
-__author__ = "Gerald W. Liu"
+__author__ = 'Gerald W. Liu'
 
 import numpy as np
 import pandas as pd
@@ -102,11 +102,10 @@ for i in range(eq_norm.shape[1]):
     X = sm.add_constant(f_req_norm) # add a column -> (133, 11)
     y = eq_norm[:, i] # (133, 1)
     model = sm.OLS(y, X).fit()
-    beta[i, :] = model.params[1:]
+    beta[i, :] = model.params[1:] # exclude intercept
     tvalue[i, :] = model.tvalues[1:]
     rsq[i] = model.rsquared
 
-# exclude intercept
 df_beta = pd.DataFrame(beta, index=df_equity.columns, columns=f_names)
 df_tvalue = pd.DataFrame(tvalue, index=df_equity.columns, columns=f_names)
 df_rsq = pd.DataFrame(rsq, index=df_equity.columns, columns=['R-squared'])

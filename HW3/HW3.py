@@ -1,16 +1,16 @@
 #! /usr/bin/env python
 # -*-coding: utf-8 -*-
 
-__author__ = "Gerald W. Liu"
+__author__ = 'Gerald W. Liu'
 
-"""FINA 5840 Homework 3
+'''FINA 5840 Homework 3
 Use the HSI stocks monthly return series from HW1 to find the weight vector 
 using the following smart beta schemes.
 Use an upper bound weight of 10% for each stock.
 a. Maximum Diversification Ratio (MDR)
 b. Global Minimum Variance (GMV)
 c. Maximum Sharpe Ratio (MSR)
-"""
+'''
 
 import numpy as np
 import pandas as pd

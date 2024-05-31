@@ -1,8 +1,8 @@
-"""FINA 5840 Lecture 4 Class Assignment 2
+'''FINA 5840 Lecture 4 Class Assignment 2
 Efficient Frontier construction with scipy
-"""
+'''
 
-__author__ = "Gerald W. Liu"
+__author__ = 'Gerald W. Liu'
 
 
 import numpy as np
@@ -104,7 +104,7 @@ class EfficientFrontier:
         return {'vol_range': vol_range, 'weights': wgt_vec}
     
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     raw_data = pd.read_excel('../HSI.xlsx', sheet_name='data', index_col=0)
     data = raw_data.resample('W').last().iloc[:, :20]
 
@@ -143,8 +143,8 @@ if __name__ == "__main__":
         ax1 = axs1[i]
         ax1.plot(std_range, mu_range)
         ax1.set_title(f'Mean-Variance Frontier using {rm}')
-        ax1.set_xlabel("std")
-        ax1.set_ylabel("mean")
+        ax1.set_xlabel('std')
+        ax1.set_ylabel('mean')
 
         ax2 = axs2[i]
         ax2.bar([ticker[:-3] for ticker in data.columns], min_risk_w)
