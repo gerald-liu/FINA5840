@@ -57,7 +57,7 @@ For the 2nd factor onward, the correlation needs to be greater than 'reqCorr' bu
 After PC1, you must have some factors in the list already, go on for PC2 and then PC3:
 For each factor, keep those with correlation greater than 'reqCorr' but less than the 'reqFcorr'.
 '''
-f_idx = set()
+f_idx = set() # use set to preserve the order by list(f_idx)
 
 for i in range(pc.shape[1]):
     corr = np.zeros(factor.shape[1])
@@ -78,7 +78,7 @@ for i in range(pc.shape[1]):
             if keep:
                 f_idx.add(k)
 
-f_req = factor[:, list(f_idx)]
+f_req = factor[:, list(f_idx)] # auto sort ascending
 f_names = df_factor.columns[list(f_idx)]
 
 '''Question 5

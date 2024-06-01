@@ -38,6 +38,7 @@ def ERC_func(w, cov):
     return np.sum((MRC(w, cov) - vol(w, cov)/cov.shape[0])**2)
 
 # Max Diversification Ratio objective: maximize DI = (w.T std)/(w.T omega w)
+# maximize DI = minimize -DI
 def MDR_func(w, cov):
     return - (w @ np.sqrt(np.diag(cov))) / vol(w, cov)
 
@@ -50,6 +51,7 @@ def MDC_func(w, corr):
     return w @ corr @ w
 
 # Max Sharpe Ratio objective: maximize Sharpe = (w.T mu - rf)/(w.T omega w)
+# maximize Sharpe = minimize -Sharpe
 def MSR_func(w, cov, mu, rf):
     return - (w @ mu - rf) / vol(w, cov)
 
@@ -58,7 +60,8 @@ def pfl_optimizer(func, n, args=(), long_only=True):
     wgt = np.ones(n) / n # equal weights for init guess
     cons = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)}) # constraint: sum(w)=1
     if long_only:
-        bnds = ((0, 0.1),) * n # upper bound weight of 10% for each stock
+        # bnds = ((0, 0.1),) * n # upper bound weight of 10% for each stock
+        bnds = ((0.01, 0.1),) * n
     else:
         bnds = ((-0.1, 0.1),) * n
     
@@ -84,4 +87,16 @@ df_weights = pd.DataFrame(
     np.column_stack((w_ERC, w_MDR, w_GMV, w_MDC, w_MSR)),
     index=data.columns, columns=['ERC', 'MDR', 'GMV', 'MDC', 'MSR']
 )
-df_weights.to_csv('weights.csv', float_format='%.6f')
+# df_weights.to_csv('weights.csv', float_format='%.6f')
+df_weights.to_csv('weights1.csv', float_format='%.6f')
+
+
+# test
+# w1 = np.random.rand(n)
+# w1 = w1/w1.sum()
+
+# var0 = w1 @ cov @ w1
+# var1 = np.dot(np.dot(w1, cov), w1)
+# var2 = np.dot(w1, np.dot(cov, w1))
+
+# print(var0, var1, var2)

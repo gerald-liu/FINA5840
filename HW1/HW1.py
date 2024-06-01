@@ -25,6 +25,7 @@ from matplotlib import pyplot as plt
 
 # Question 1
 df = pd.read_excel('../HSI.xlsx', index_col=0)
+# df.index = pd.to_datetime(df.index, format='%m/%d/%Y')
 df = df.interpolate(method='spline', order=3)
 
 # Question 2
@@ -63,6 +64,14 @@ for y in range(start_year, end_year + 1):
         df_monthly_std.loc[month_idx] = df_m.std()
 
 df_monthly_std.to_csv('HSI_vol.csv')
+
+# Question 6 Method 2
+monthly_idx = df_daily_ret.index.to_period('M')
+df_monthly_std_2 = pd.DataFrame(index=monthly_idx, columns=df_daily_ret.columns).rename_axis('Date')
+for stock in df_daily_ret.columns:
+    s_stock = df_daily_ret.loc[:, stock]
+    # df_monthly_std[stock] = s_stock.groupby([s_stock.index.year, s_stock.index.month]).std().values
+    df_monthly_std_2[stock] = s_stock.groupby(monthly_idx).std()
 
 # Question 7
 df_monthly_std_1 = df_daily_ret.resample('M').std()
