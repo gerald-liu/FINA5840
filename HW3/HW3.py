@@ -60,8 +60,8 @@ def pfl_optimizer(func, n, args=(), long_only=True):
     wgt = np.ones(n) / n # equal weights for init guess
     cons = ({'type': 'eq', 'fun': lambda x: 1 - sum(x)}) # constraint: sum(w)=1
     if long_only:
-        # bnds = ((0, 0.1),) * n # upper bound weight of 10% for each stock
-        bnds = ((0.01, 0.1),) * n
+        bnds = ((0, 0.1),) * n # upper bound weight of 10% for each stock
+        # bnds = ((0.01, 0.1),) * n
     else:
         bnds = ((-0.1, 0.1),) * n
     
@@ -87,8 +87,8 @@ df_weights = pd.DataFrame(
     np.column_stack((w_ERC, w_MDR, w_GMV, w_MDC, w_MSR)),
     index=data.columns, columns=['ERC', 'MDR', 'GMV', 'MDC', 'MSR']
 )
-# df_weights.to_csv('weights.csv', float_format='%.6f')
-df_weights.to_csv('weights1.csv', float_format='%.6f')
+df_weights.to_csv('weights.csv', float_format='%.6f')
+# df_weights.to_csv('weights1.csv', float_format='%.6f')
 
 
 # test
